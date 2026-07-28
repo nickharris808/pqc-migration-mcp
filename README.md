@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![mcp](https://img.shields.io/badge/MCP-2024--11--05-blueviolet.svg)](#)
-[![tests](https://img.shields.io/badge/tests-42%20passing-brightgreen.svg)](tests/)
+[![tests](https://img.shields.io/badge/tests-57%20passing-brightgreen.svg)](tests/)
 [![deps](https://img.shields.io/badge/protocol%20deps-none-brightgreen.svg)](pyproject.toml)
 
 **Give your AI agent the post-quantum migration facts it keeps guessing at.**
@@ -10,6 +10,8 @@
 Six tools over MCP: credential sizes, fragment counts, the reassembly window, the
 39-family failure taxonomy, and benchmark scoring. Ask Claude *"will our ML-KEM-768
 handshake fit in a BLE MTU?"* and it computes the answer instead of estimating one.
+
+**📖 Full documentation, tutorial and conceptual guide: <https://nickharris808.github.io/pqc-toolkit/>**
 
 ---
 
@@ -121,7 +123,7 @@ serving.
 ## Tests
 
 ```bash
-pip install -e ".[dev]" && pytest      # 42 passed
+pip install -e ".[dev]" && pytest      # 57 passed
 ```
 
 Tests cover the protocol, every tool, the moat boundary, and the real stdio transport
