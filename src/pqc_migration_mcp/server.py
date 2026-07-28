@@ -120,31 +120,26 @@ def _tool_reassembly_window(largest_legitimate_object: int, memory_budget: int,
 
 
 def _tool_list_failure_families() -> dict:
-    from pqc_mfb import load_cases
+    # The taxonomy is a pure function of the corpus, so pqc_mfb derives and caches
+    # it once rather than every consumer rebuilding it per request.
+    from pqc_mfb import families
 
-    cases = load_cases()
-    fams: dict[str, dict] = {}
-    for c in cases:
-        f = fams.setdefault(c.family, {"family": c.family, "n_cases": 0,
-                                       "designs": set(), "analogues": set()})
-        f["n_cases"] += 1
-        f["designs"].add(c.design)
-        if c.prior_art_analogue:
-            f["analogues"].add(c.prior_art_analogue)
-    out = []
-    for f in sorted(fams.values(), key=lambda x: x["family"]):
-        out.append({"family": f["family"], "n_cases": f["n_cases"],
-                    "designs": sorted(f["designs"]),
-                    "prior_art_analogues": sorted(f["analogues"])})
+    out = [{"family": f.name, "n_cases": f.n_cases,
+            "designs": list(f.designs),
+            "prior_art_analogues": list(f.prior_art_analogues)}
+           for f in families()]
     return {"n_families": len(out), "families": out}
 
 
 def _tool_describe_family(family: str) -> dict:
     from pqc_mfb import load_cases
 
-    cases = [c for c in load_cases() if c.family == family]
+    # One load, not two: the error path used to re-read the whole corpus purely to
+    # build the "known families" list.
+    everything = load_cases()
+    cases = [c for c in everything if c.family == family]
     if not cases:
-        known = sorted({c.family for c in load_cases()})
+        known = sorted({c.family for c in everything})
         raise ValueError(f"unknown family {family!r}; known: {', '.join(known)}")
     return {
         "family": family,
