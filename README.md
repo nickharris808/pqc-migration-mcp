@@ -26,9 +26,11 @@ stdio, which is small enough to implement directly and keeps the install trivial
 ## Install
 
 ```bash
-pip install pqc-migration-mcp        # once published
-pip install -e .                     # from a clone, today
+pip install git+https://github.com/nickharris808/pqc-migration-mcp
 ```
+
+This pulls `pqc-sizes` and `pqc-mfb` from their repositories too. Not on PyPI
+yet, so `pip install pqc-migration-mcp` does not work today.
 
 ## 30-second quickstart
 
@@ -141,6 +143,25 @@ Closing the 39 families is what the closed core does. Relevant subject matter is
 by a filed provisional patent application. For commercial use of the full envelope, open a
 [GitHub Discussion](https://github.com/nickharris808) or an issue on this repository.
 
+## Honest scope
+
+**What this proves.** That the arithmetic and taxonomy an agent is reasoning
+with are correct: real credential sizes, real fragment counts, a real window
+verdict, and the real failure taxonomy.
+
+**What it does NOT prove.**
+
+- **Not that the agent used the answer.** This supplies facts; it does not
+  supervise what is done with them.
+- **Not an inspection of your code.** No tool here reads your implementation.
+- **Not a repair channel.** Every tool exposes detection only. A test calls
+  `describe_family` for all 39 families plus every other tool and fails if a
+  repair field appears anywhere in the output.
+
+**Errors.** Domain problems come back as tool results with `isError: true` and a
+message naming valid options, so an agent can self-correct. Only protocol faults
+become JSON-RPC errors.
+
 ---
 
 ## The PQC migration toolkit
@@ -160,7 +181,9 @@ Nine free tools for teams moving authenticated key exchange to post-quantum. The
 | [pqc-formal-corpus](https://huggingface.co/datasets/nickh007/pqc-formal-corpus) | 122 named formal results, 6 provers | HF |
 | [pqc-explorer](https://huggingface.co/spaces/nickh007/pqc-explorer) | Try it in your browser, no install | HF Space |
 
-**Start here:** [`pqc-sizes`](https://github.com/nickharris808/pqc-sizes) tells you in five seconds whether your credential fragments and whether a safe cap exists. [`pqc-explorer`](https://huggingface.co/spaces/nickh007/pqc-explorer) does the same in a browser.
+**New here?** The [end-to-end tutorial](https://github.com/nickharris808/pqc-sizes/blob/main/TUTORIAL.md) walks one realistic migration through all of them in about ten minutes: sizes -> window -> CI gate -> benchmark.
+
+**In a hurry?** [`pqc-sizes`](https://github.com/nickharris808/pqc-sizes) tells you in five seconds whether your credential fragments and whether a safe cap exists. [`pqc-explorer`](https://huggingface.co/spaces/nickh007/pqc-explorer) does the same in a browser, with no install.
 
 ### The closed core
 
