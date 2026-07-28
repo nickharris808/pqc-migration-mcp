@@ -1,0 +1,15 @@
+pqc-migration-mcp
+Copyright 2026 PQC Migration Safety Lab
+
+Licensed under the Apache License, Version 2.0. See LICENSE.
+
+DEPENDENCIES
+------------
+
+  pqc-sizes       Apache License 2.0  (same authors)
+  pqc-mfb         Apache License 2.0 (code) / CC BY 4.0 (data)  (same authors)
+
+Both are first-party and Apache-2.0 licensed. The MCP protocol layer itself has
+no third-party dependency: JSON-RPC 2.0 over line-delimited stdio is implemented
+directly against the Python standard library. No third-party source is vendored
+into this repository.
