@@ -36,6 +36,40 @@ INTERNAL_ERROR = -32603
 # --------------------------------------------------------------- tools
 
 
+def _as_int(field: str, value: object) -> int:
+    """Coerce a tool argument to int, or raise a message an agent can act on.
+
+    A bare ``int(value)`` surfaces CPython's own wording -- "invalid literal for
+    int() with base 10: 'big'" -- as the tool result. That leaks the
+    implementation and tells the agent nothing about which argument to fix.
+    """
+    if isinstance(value, bool):
+        raise ValueError(
+            f"{field} must be an integer number of bytes, got a boolean. "
+            f"Pass a number, not true/false."
+        )
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        if value != int(value):
+            raise ValueError(
+                f"{field} must be a whole number of bytes, got {value}."
+            )
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value.strip())
+        except ValueError:
+            raise ValueError(
+                f"{field} must be an integer number of bytes, got the string "
+                f"{value!r}. Pass a number such as 12000."
+            ) from None
+    raise ValueError(
+        f"{field} must be an integer number of bytes, got "
+        f"{type(value).__name__}."
+    )
+
+
 def _tool_credential_size(kem: str = "ML-KEM-768", sig: str = "ML-DSA-65") -> dict:
     from pqc_sizes import ALGORITHMS, Credential
 
@@ -51,10 +85,12 @@ def _tool_credential_size(kem: str = "ML-KEM-768", sig: str = "ML-DSA-65") -> di
 def _tool_fragments(object_bytes: int, frame_payload: int) -> dict:
     from pqc_sizes import fragments_for
 
-    n = fragments_for(int(object_bytes), int(frame_payload))
+    object_bytes = _as_int("object_bytes", object_bytes)
+    frame_payload = _as_int("frame_payload", frame_payload)
+    n = fragments_for(object_bytes, frame_payload)
     return {
-        "object_bytes": int(object_bytes),
-        "frame_payload": int(frame_payload),
+        "object_bytes": object_bytes,
+        "frame_payload": frame_payload,
         "fragments": n,
         "fragmentation_required": n > 1,
         "note": ("The receiver holds partial, unauthenticated state across "
@@ -66,15 +102,19 @@ def _tool_reassembly_window(largest_legitimate_object: int, memory_budget: int,
                             concurrency: int) -> dict:
     from pqc_sizes import max_concurrent_contexts, reassembly_window
 
-    win = reassembly_window(int(largest_legitimate_object), int(memory_budget),
-                            int(concurrency))
+    largest_legitimate_object = _as_int("largest_legitimate_object",
+                                        largest_legitimate_object)
+    memory_budget = _as_int("memory_budget", memory_budget)
+    concurrency = _as_int("concurrency", concurrency)
+
+    win = reassembly_window(largest_legitimate_object, memory_budget, concurrency)
     return {
         "floor": win.floor, "ceiling": win.ceiling,
         "budget": win.budget, "concurrency": win.concurrency,
         "is_empty": win.is_empty,
         "recommended_cap": win.recommended,
         "max_safe_concurrency": max_concurrent_contexts(
-            int(largest_legitimate_object), int(memory_budget)),
+            largest_legitimate_object, memory_budget),
         "explanation": win.explain(),
     }
 

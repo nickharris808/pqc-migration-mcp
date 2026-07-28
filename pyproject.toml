@@ -18,7 +18,16 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Topic :: Security :: Cryptography",
 ]
-dependencies = ["pqc-sizes>=0.1.0", "pqc-mfb>=0.1.0"]
+# Resolved from their public GitHub repositories, because neither is on PyPI yet.
+# With plain version specifiers, `pip install .` in a clean environment failed with
+# "No matching distribution found for pqc-sizes>=0.1.0" -- the package could not be
+# installed by anyone. Swap these for `pqc-sizes>=0.1.0` / `pqc-mfb>=0.1.0` once both
+# are published; PyPI rejects direct references, so that swap is required before any
+# upload of THIS package.
+dependencies = [
+    "pqc-sizes @ git+https://github.com/nickharris808/pqc-sizes@main",
+    "pqc-mfb @ git+https://github.com/nickharris808/pqc-mfb@main",
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.0", "ruff>=0.1.0"]

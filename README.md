@@ -2,7 +2,7 @@
 
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![mcp](https://img.shields.io/badge/MCP-2024--11--05-blueviolet.svg)](#)
-[![tests](https://img.shields.io/badge/tests-26%20passing-brightgreen.svg)](tests/)
+[![tests](https://img.shields.io/badge/tests-42%20passing-brightgreen.svg)](tests/)
 [![deps](https://img.shields.io/badge/protocol%20deps-none-brightgreen.svg)](pyproject.toml)
 
 **Give your AI agent the post-quantum migration facts it keeps guessing at.**
@@ -66,22 +66,27 @@ Restart Claude Desktop. The six tools appear under the connector.
 
 ## Worked example — actual output
 
+The transport is **line-delimited** JSON — one complete object per line. Keep the
+request on a single line; a request wrapped across two lines arrives as two
+incomplete ones and comes back as two `-32700` parse errors.
+
 ```
-$ printf '%s\n' \
-  '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"reassembly_window",
-    "arguments":{"largest_legitimate_object":12000,"memory_budget":32768,"concurrency":3}}}' \
-  | pqc-migration-mcp
+$ echo '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"reassembly_window","arguments":{"largest_legitimate_object":12000,"memory_budget":32768,"concurrency":3}}}' | pqc-migration-mcp
 ```
+
+The server replies with one JSON object per line. Pretty-printed, the `content`
+payload of that reply is:
 
 ```json
 {
-  "is_empty": true,
+  "budget": 32768,
   "ceiling": 10922,
-  "recommended_cap": null,
+  "concurrency": 3,
+  "explanation": "EMPTY WINDOW: floor 12,000 B > ceiling 10,922 B (short by 1,078 B). No capacity cap is both feasible and safe. Raise the budget to at least 36,000 B, reduce concurrency to at most 2, or choose a smaller credential.",
+  "floor": 12000,
+  "is_empty": true,
   "max_safe_concurrency": 2,
-  "explanation": "EMPTY WINDOW: floor 12,000 B > ceiling 10,922 B (short by 1,078 B).
-    No capacity cap is both feasible and safe. Raise the budget to at least 36,000 B,
-    reduce concurrency to at most 2, or choose a smaller credential."
+  "recommended_cap": null
 }
 ```
 
@@ -114,7 +119,7 @@ serving.
 ## Tests
 
 ```bash
-pip install -e ".[dev]" && pytest      # 26 passed
+pip install -e ".[dev]" && pytest      # 42 passed
 ```
 
 Tests cover the protocol, every tool, the moat boundary, and the real stdio transport
