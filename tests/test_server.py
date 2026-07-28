@@ -9,6 +9,7 @@ Two levels:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -183,6 +184,28 @@ def test_tool_registry_contains_no_repair_tool():
 
 # ---------------------------------------------------------------- stdio
 
+def minimal_env() -> dict:
+    """A deliberately sparse environment for the server subprocess.
+
+    The point is to prove the server needs nothing inherited from the parent
+    beyond an import path. It must still be a *valid* environment on the host
+    platform, which the previous hardcoded ``{"PATH": "/usr/bin:/bin", ...}``
+    was not on Windows: ``:`` is not the path separator there, and without
+    ``SystemRoot`` CPython cannot seed hash randomisation and dies with
+    ``_Py_HashRandomization_Init: failed to get random numbers`` before running
+    a line of our code.
+    """
+    env = {"PYTHONPATH": os.pathsep.join(sys.path)}
+    if sys.platform == "win32":
+        for required in ("SystemRoot", "SYSTEMROOT", "TEMP", "PATHEXT"):
+            if required in os.environ:
+                env[required] = os.environ[required]
+        env.setdefault("PATH", os.environ.get("PATH", ""))
+    else:
+        env["PATH"] = "/usr/bin:/bin"
+    return env
+
+
 def test_stdio_loop_end_to_end(tmp_path):
     """Drive the real server as a client would: line-delimited JSON on stdin."""
     reqs = [
@@ -196,7 +219,7 @@ def test_stdio_loop_end_to_end(tmp_path):
     proc = subprocess.run(
         [sys.executable, "-m", "pqc_migration_mcp"],
         input=stdin, capture_output=True, text=True, timeout=60,
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": ":".join(sys.path)},
+        env=minimal_env(),
     )
     assert proc.returncode == 0, proc.stderr
     lines = [json.loads(x) for x in proc.stdout.splitlines() if x.strip()]
@@ -233,7 +256,7 @@ def test_stdio_transport_emits_nothing_on_stderr():
         [sys.executable, "-m", "pqc_migration_mcp"],
         input='{"jsonrpc":"2.0","id":1,"method":"ping"}\n',
         capture_output=True, text=True, timeout=60,
-        env={"PATH": "/usr/bin:/bin", "PYTHONPATH": ":".join(sys.path)},
+        env=minimal_env(),
     )
     assert proc.returncode == 0
     assert proc.stderr == "", f"unexpected stderr: {proc.stderr!r}"
