@@ -141,8 +141,7 @@ not that your code enforces it.
 [`pqc-sizes`](https://github.com/nickharris808/pqc-sizes) · [`pqc-mfb`](https://github.com/nickharris808/pqc-mfb) ·
 [`pqc-guard-action`](https://github.com/nickharris808/pqc-guard-action) · [`pqc-dos-embedded`](https://github.com/nickharris808/pqc-dos-embedded)
 
-Closing the 39 families is what the closed core does. Relevant subject matter is covered
-by a filed provisional patent application. For commercial use of the full envelope, open a
+Closing the 39 families is what the closed core does. Patent claims have been drafted for relevant subject matter; filing status available on request. For commercial use of the full envelope, open a
 [GitHub Discussion](https://github.com/nickharris808) or an issue on this repository.
 
 ## Honest scope
@@ -191,7 +190,7 @@ Eleven free tools for teams moving authenticated key exchange to post-quantum. T
 
 ### The closed core
 
-Closing the 39 failure families — downgrade binding, retransmission-safe installation, fragmentation transcripts, roaming forward secrecy, multi-link key separation, admission control, group-key binding — is a separate proprietary codebase. Relevant subject matter is covered by a filed provisional patent application.
+Closing the 39 failure families — downgrade binding, retransmission-safe installation, fragmentation transcripts, roaming forward secrecy, multi-link key separation, admission control, group-key binding — is a separate proprietary codebase. Patent claims have been drafted for relevant subject matter; filing status available on request.
 
 That split is measured, not asserted: under a replicate noise control only **4 of 32** repair mechanisms are externally distinguishable, so publishing these detectors does not disclose the repairs.
 
